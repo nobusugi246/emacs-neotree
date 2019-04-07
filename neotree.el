@@ -203,7 +203,7 @@ window."
   :type 'boolean
   :group 'neotree)
 
-(defcustom neo-theme 'classic
+(defcustom neo-theme 'nerd
   "*The tree style to display.
 `classic' use icon to display, it only it suitable for GUI mode.
 `ascii' is the simplest style, it will use +/- to display the fold state,
@@ -250,7 +250,7 @@ the mode-line format."
   :type 'boolean
   :group 'neotree)
 
-(defcustom neo-window-width 25
+(defcustom neo-window-width 30
   "*Specifies the width of the NeoTree window."
   :type 'integer
   :group 'neotree)
@@ -260,7 +260,7 @@ the mode-line format."
   :type 'boolean
   :group 'neotree)
 
-(defcustom neo-keymap-style 'default
+(defcustom neo-keymap-style 'concise
   "*The default keybindings for neotree-mode-map."
   :group 'neotree
   :type '(choice (const default)
@@ -630,8 +630,11 @@ The car of the pair will store fullpath, and cdr will store line number.")
                                      :file-fn 'neo-open-file-horizontal-split))
     (define-key map (kbd "a")       (neotree-make-executor
                                      :file-fn 'neo-open-file-ace-window))
-    (define-key map (kbd "d")       (neotree-make-executor
-                                     :dir-fn 'neo-open-dired))
+;    (define-key map (kbd "d")       (neotree-make-executor
+;                                     :dir-fn 'neo-open-dired))
+    (define-key map (kbd "z")       (neotree-make-executor
+                                     :file-fn 'neo-open-by-open
+                                     :dir-fn 'neo-open-by-open))
     (define-key map (kbd "O")       (neotree-make-executor
                                      :dir-fn  'neo-open-dir-recursive))
     (define-key map (kbd "SPC")     'neotree-quick-look)
@@ -643,6 +646,7 @@ The car of the pair will store fullpath, and cdr will store line number.")
     (define-key map (kbd "C-n")     'neotree-next-line)
     (define-key map (kbd "A")       'neotree-stretch-toggle)
     (define-key map (kbd "U")       'neotree-select-up-node)
+    (define-key map (kbd "u")       'neotree-select-up-node)
     (define-key map (kbd "D")       'neotree-select-down-node)
     (define-key map (kbd "H")       'neotree-hidden-file-toggle)
     (define-key map (kbd "S")       'neotree-select-previous-sibling-node)
@@ -663,11 +667,18 @@ The car of the pair will store fullpath, and cdr will store line number.")
       (define-key map (kbd "C-c C-r") 'neotree-rename-node)
       (define-key map (kbd "C-c C-p") 'neotree-copy-node))
      ((eq neo-keymap-style 'concise)
+      (define-key map (kbd "w")       (neotree-make-executor
+                                       :dir-fn 'neo-open-dired))
+      (define-key map (kbd "p") 'neotree-previous-line)
+      (define-key map (kbd "n") 'neotree-next-line)
+      (define-key map (kbd "y") 'neotree-copy-node)
       (define-key map (kbd "C") 'neotree-change-root)
+      (define-key map (kbd "m") 'neotree-change-root)
       (define-key map (kbd "c") 'neotree-create-node)
       (define-key map (kbd "+") 'neotree-create-node)
       (define-key map (kbd "d") 'neotree-delete-node)
       (define-key map (kbd "r") 'neotree-rename-node)
+;;      (define-key map (kbd "p") 'neotree-create-node)
       (define-key map (kbd "e") 'neotree-enter)))
     map)
   "Keymap for `neotree-mode'.")
@@ -1870,6 +1881,10 @@ If ARG is `|' then the node is opened in new vertically split window.
 If ARG is `-' then the node is opened in new horizontally split window."
   (neo-global--select-mru-window arg)
   (find-file full-path))
+
+(defun neo-open-by-open (full-path &optional arg)
+  "Open a file node by open."
+  (shell-command-to-string (concat "open " full-path)))
 
 (defun neo-open-file-vertical-split (full-path arg)
   "Open the current node is a vertically split window.
